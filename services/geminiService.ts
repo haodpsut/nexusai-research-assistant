@@ -21,6 +21,25 @@ const keywordsSchema = {
     },
 };
 
+const papersSchema = {
+    type: Type.ARRAY,
+    items: {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING, description: "The full title of the paper." },
+            authors: { 
+                type: Type.ARRAY, 
+                items: { type: Type.STRING },
+                description: "A list of the primary authors."
+            },
+            summary: { type: Type.STRING, description: "A concise one-paragraph summary of the paper's key findings." },
+            publicationDate: { type: Type.STRING, description: "The publication date in YYYY-MM-DD format." },
+            sourceTitle: { type: Type.STRING, description: "The name of the conference or journal (e.g., 'arXiv', 'NeurIPS 2023')." }
+        },
+        required: ["title", "authors", "summary", "publicationDate", "sourceTitle"],
+    },
+};
+
 const ideasSchema = {
     type: Type.ARRAY,
     items: {
@@ -63,43 +82,35 @@ export const getTrendingKeywords = async (field: string): Promise<Keyword[]> => 
 
 export const getLatestPapers = async (field: string): Promise<Paper[]> => {
     try {
-        const prompt = `Using Google Search, find 5 recent and highly impactful research papers related to "${field}" published in the last 6 months. For each paper, provide the title, all authors, and a concise one-paragraph summary of its contributions.`;
+        const prompt = `As a research domain expert for "${field}", find the 5-7 most significant and recent papers published in the last 2 years. I need a structured list of these papers.`;
 
         const response = await ai.models.generateContent({
             model: "gemini-2.5-flash",
             contents: prompt,
             config: {
-                tools: [{ googleSearch: {} }],
+                responseMimeType: "application/json",
+                responseSchema: papersSchema,
             },
         });
 
-        const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
-        
-        // This is a simplified regex to find paper sections. A more robust solution might be needed.
-        const paperSections = response.text.split(/\d+\.\s/).filter(section => section.trim() !== "");
+        const jsonString = response.text;
+        const papers = JSON.parse(jsonString);
 
-        const papers: Paper[] = paperSections.map((section, index) => {
-            const titleMatch = section.match(/Title:\s*\"(.*?)\"/i);
-            const authorsMatch = section.match(/Authors?:\s*(.*?)(?=\nSummary:|\n$)/i);
-            const summaryMatch = section.match(/Summary:\s*(.*)/i);
-
-            const paper: Paper = {
-                title: titleMatch ? titleMatch[1] : 'Title not found',
-                authors: authorsMatch ? authorsMatch[1].split(/,\s*and\s*|,\s*/) : [],
-                summary: summaryMatch ? summaryMatch[1] : 'Summary not available.',
-                url: groundingChunks?.[index]?.web?.uri,
-                sourceTitle: groundingChunks?.[index]?.web?.title
-            };
-            return paper;
+        // Sort by publication date descending to ensure the newest are first
+        papers.sort((a: Paper, b: Paper) => {
+            const dateA = a.publicationDate ? new Date(a.publicationDate).getTime() : 0;
+            const dateB = b.publicationDate ? new Date(b.publicationDate).getTime() : 0;
+            return dateB - dateA;
         });
 
-        return papers.filter(p => p.title !== 'Title not found');
+        return papers;
 
     } catch (error) {
         console.error(`Error fetching latest papers for ${field}:`, error);
         return [];
     }
 };
+
 
 export const getResearchIdeas = async (field: string): Promise<Idea[]> => {
     try {

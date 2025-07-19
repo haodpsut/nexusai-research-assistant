@@ -39,31 +39,34 @@ const ProviderSettings: React.FC<ProviderSettingsProps> = ({ onContinue }) => {
   return (
     <div className="text-center max-w-4xl mx-auto">
       <h1 className="text-4xl font-bold tracking-tight text-slate-100 sm:text-5xl">
-        Configure Your AI Provider
+        Configure Your Research Assistant
       </h1>
       <p className="mt-4 text-lg text-slate-400">
-        Choose the AI service for generating insights. API keys are handled securely via pre-configured environment variables.
+        Choose your AI provider to get started. All data is sourced via Google Gemini for reliable and secure results.
       </p>
       
-      <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2">
-        <ProviderCard
-          title="Google Gemini"
-          description="Powered by Google's state-of-the-art models for high-quality, grounded results."
-          icon={<BrainIcon className="h-8 w-8 text-cyan-400" />}
-          isSelected={selectedProvider === 'gemini'}
-          onClick={() => setSelectedProvider('gemini')}
-        />
-        <ProviderCard
-          title="OpenRouter"
-          description="Access a variety of models from different providers. (Demonstration only)"
-          icon={<OpenRouterIcon className="h-8 w-8 text-indigo-400" />}
-          isSelected={selectedProvider === 'openrouter'}
-          onClick={() => setSelectedProvider('openrouter')}
-        />
+      <div className="mt-12 text-left">
+          <h2 className="text-lg font-semibold text-slate-200 mb-3">Select AI Provider</h2>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <ProviderCard
+              title="Google Gemini"
+              description="Powered by Google's state-of-the-art models for high-quality, grounded results."
+              icon={<BrainIcon className="h-8 w-8 text-cyan-400" />}
+              isSelected={selectedProvider === 'gemini'}
+              onClick={() => setSelectedProvider('gemini')}
+            />
+            <ProviderCard
+              title="OpenRouter"
+              description="Access a variety of models from different providers. (Demonstration only)"
+              icon={<OpenRouterIcon className="h-8 w-8 text-indigo-400" />}
+              isSelected={selectedProvider === 'openrouter'}
+              onClick={() => setSelectedProvider('openrouter')}
+            />
+          </div>
       </div>
 
       {selectedProvider === 'openrouter' && (
-        <div className="mt-8 text-left bg-slate-800/50 p-6 rounded-lg animate-fade-in">
+        <div className="mt-6 text-left bg-slate-800/50 p-6 rounded-lg animate-fade-in">
             <label htmlFor="openrouter-model" className="block text-sm font-medium text-slate-300">Select a free model</label>
             <select
                 id="openrouter-model"
@@ -76,14 +79,14 @@ const ProviderSettings: React.FC<ProviderSettingsProps> = ({ onContinue }) => {
                 ))}
             </select>
              <p id="openrouter-disclaimer" className="mt-3 text-xs text-amber-400/80 bg-amber-900/20 p-3 rounded-md">
-                <strong>Demonstration Only:</strong> OpenRouter integration is not yet fully implemented. The application will use Google Gemini regardless of the selection here. This UI demonstrates future capabilities.
+                <strong>Demonstration Only:</strong> OpenRouter integration is not fully implemented. The application will use Google Gemini regardless of the selection here.
             </p>
         </div>
       )}
 
       <div className="mt-10">
         <button
-          onClick={onContinue}
+          onClick={() => onContinue()}
           className="px-8 py-3 text-base font-medium text-white bg-cyan-600 rounded-md hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-cyan-500 transition-colors"
         >
           Confirm and Continue

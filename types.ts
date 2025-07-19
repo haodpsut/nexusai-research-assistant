@@ -1,4 +1,3 @@
-
 import type React from 'react';
 
 export interface ResearchField {
@@ -20,6 +19,7 @@ export interface Paper {
   summary: string;
   url?: string;
   sourceTitle?: string;
+  publicationDate?: string;
 }
 
 export interface Idea {
